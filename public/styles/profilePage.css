@@ -1,0 +1,87 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.profileContainer {
+  gap: 10px;
+  padding: 40px 10px;
+  background-color: #e5e7eb;
+  border-radius: 10px;
+}
+.userDetails {
+  width: 70%;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.userImg {
+  border-right: 2px solid black;
+  padding-right: 10px;
+}
+.userImg img {
+  display: block;
+  height: 350px;
+  margin: 10px auto;
+  border-radius: 5px;
+}
+.userImg form {
+  align-items: center;
+}
+.detailGroup {
+  padding: 0px 30px;
+  align-items: flex-start;
+  gap: 10px;
+}
+.detailGroup label {
+  font-family: "Lilita One", sans-serif;
+  font-weight: 400;
+  padding: 10px 0px;
+  width: 120px;
+  /* border: 2px solid; */
+  font-size: 1.1rem;
+}
+.detailGroup input,
+textarea ,select{
+  font-family: "Outfit", sans-serif;
+  font-size: 1.1rem;
+  border: none;
+  outline: none;
+  padding: 10px;
+  width: 70%;
+}
+.detailGroup span {
+  margin: auto 0px;
+  font-family: "Outfit", sans-serif;
+}
+.smallinput {
+  width: 30px !important;
+}
+.updateAction {
+  align-self: flex-end;
+}
+.pPUpdateBtn {
+  font-size: 14px;
+  background-color: blue;
+  color: white;
+}
+.saveUpdate {
+  font-size: 14px;
+  background-color: green;
+  color: white;
+}
+
+.editable {
+  border: 2px solid #007bff !important;
+  background-color: #f8f9fa;
+}
+.saveUpdate {
+  display: none;
+}
+.detailGroup {
+  margin-bottom: 10px;
+}
+textarea.editable {
+  min-height: 80px;
+}

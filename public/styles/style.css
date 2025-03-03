@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* default tag styling */
+body {
+  background-color: #e8e5e5;
+  overflow-y: scroll;
+}
+li {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+}
+
+.main-box-home {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 80px;
+}
+
+.container {
+  width: 78%;
+  margin: 0 auto;
+}
+.btn {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+}
+.btn-primary {
+  background-color: #ff6f00;
+}
+.btn-primary:hover {
+  background-color: #e65c00;
+}
+.btn-secondary {
+  background-color: white;
+}
+.btn-secondary:hover {
+  background-color: #e65c00;
+}
+.footer {
+  font-family: "Outfit", sans-serif;
+  width: 100%;
+  height: 100px;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-r {
+  display: flex;
+  flex-direction: row;
+}
+.flex-c {
+  display: flex;
+  flex-direction: column;
+}
