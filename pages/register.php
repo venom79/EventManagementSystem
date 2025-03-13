@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $priceRange = isset($_POST['priceRange']) ? trim($_POST['priceRange']) : null;
 
     // ✅ Role validation
-    if (!in_array($role, ['user', 'organizer', 'vendor'])) {
+    if (!in_array($role, ['user', 'organizer', 'vendor', 'venue_owner'])) {
         echo "<script>alert('Invalid role selected.'); window.history.back();</script>";
         exit;
     }
@@ -177,6 +177,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <option value="user">User</option>
                         <option value="organizer">Organizer</option>
                         <option value="vendor">Vendor</option>
+                        <option value="venue_owner">Venue Owner</option>
                     </select>
                 </div>
 

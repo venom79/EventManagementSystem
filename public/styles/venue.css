@@ -1,0 +1,100 @@
+.venueHeader {
+  justify-content: space-between;
+  padding: 20px 10px;
+  background-color: white;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.venueHeader h1 {
+  font-family: "Lilita One", sans-serif;
+  font-weight: 400;
+}
+.addVenueBtn {
+  font-family: "Outfit", sans-serif;
+  background-color: red;
+  color: white;
+  &:hover {
+    background-color: rgb(182, 2, 2);
+  }
+}
+
+.venueTray{
+  gap: 10px;
+}
+
+.venueCard {
+  width: 30%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  /* text-align: center; */
+  transition: transform 0.3s;
+  justify-content: space-between;
+}
+
+.venueCard:hover {
+  transform: translateY(-5px);
+}
+
+.venueCard img {
+  max-width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.venueCard h3 {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  font-family: "Lilita One", sans-serif;
+  font-weight: 400;
+}
+
+.venueCard p {
+  font-size: 1rem;
+  font-family: "Outfit", sans-serif;
+  color: #555;
+}
+
+.venueCard a {
+  margin-top: 10px;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #1f2937;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-family: "Outfit", sans-serif;
+  text-align: center;
+}
+
+.venueCard a:hover {
+  background-color: #283546;
+}
+
+/* venue details css */
+
+.eventDetailsContainer{
+  
+}
+
+.venueLeft{
+  width: 50%;
+}
+
+.venueLeft img{
+  width: 100%;
+  border-radius: 10px;
+}
+.venueLeft h1{
+  font-family: "Lilita One", sans-serif;
+  font-weight: 400;
+  margin: 10px 0;
+}
+.venueLeft p{
+  font-family: "Outfit", sans-serif;
+  margin-bottom: 10px;
+}
+
+
+/* venue details css ends */

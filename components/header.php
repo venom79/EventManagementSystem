@@ -22,8 +22,8 @@ if (isset($_SESSION['user_id'])) {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        if (!empty($row['profilePic'])) {
-            $profilePic = $row['profilePic']; // Use image URL from DB
+        if (!empty($row['profile_picture'])) {
+            $profilePic = $row['profile_picture']; // Use image URL from DB
         }
         $role = $row['role']; // Fetch user role
     }
@@ -32,15 +32,15 @@ if (isset($_SESSION['user_id'])) {
 ?>
 <header class="flex-r header">
     <div class="brand flex-r">
-        <div class="brandName text-gradient">EMS</div>
+        <div class="brandName">EMS</div>
     </div>
     <div class="menu">
         <li class="flex-r">
             <ul><a href="/EventManagementSystem/">Home</a></ul>
             <ul><a href="/EventManagementSystem/pages/aboutus.php">About Us</a></ul>
-            <ul><a href="/EventManagementSystem/pages/courses.php">Courses</a></ul>
-            <ul><a href="/EventManagementSystem/pages/challenges.php">Challenges</a></ul>
-            <ul><a href="/EventManagementSystem/pages/innovatorsHub.php">InnovatorsHub</a></ul>
+            <ul><a href="/EventManagementSystem/pages/events/events.php">Events</a></ul>
+            <ul><a href="/EventManagementSystem/pages/venue/venues.php">Venues</a></ul>
+            <ul><a href="/EventManagementSystem/pages/vendors.php">Vendors</a></ul>
             <ul><a href="/EventManagementSystem/pages/contactUs.php">Contact Us</a></ul>
         </li>
     </div>
