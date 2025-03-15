@@ -1,87 +1,76 @@
-* {
-  margin: 0;
-  padding: 0;
-}
-.profileContainer {
-  gap: 10px;
-  padding: 40px 10px;
-  background-color: #e5e7eb;
-  border-radius: 10px;
-}
-.userDetails {
-  width: 70%;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-.userImg {
-  border-right: 2px solid black;
-  padding-right: 10px;
-}
-.userImg img {
-  display: block;
-  height: 350px;
-  margin: 10px auto;
-  border-radius: 5px;
-}
-.userImg form {
-  align-items: center;
-}
-.detailGroup {
-  padding: 0px 30px;
-  align-items: flex-start;
-  gap: 10px;
-}
-.detailGroup label {
-  font-family: "Lilita One", sans-serif;
-  font-weight: 400;
-  padding: 10px 0px;
-  width: 120px;
-  /* border: 2px solid; */
-  font-size: 1.1rem;
-}
-.detailGroup input,
-textarea ,select{
-  font-family: "Outfit", sans-serif;
-  font-size: 1.1rem;
-  border: none;
-  outline: none;
-  padding: 10px;
-  width: 70%;
-}
-.detailGroup span {
-  margin: auto 0px;
-  font-family: "Outfit", sans-serif;
-}
-.smallinput {
-  width: 30px !important;
-}
-.updateAction {
-  align-self: flex-end;
-}
-.pPUpdateBtn {
-  font-size: 14px;
-  background-color: blue;
-  color: white;
-}
-.saveUpdate {
-  font-size: 14px;
-  background-color: green;
-  color: white;
+.profile-container {
+    padding: 40px 0;
 }
 
-.editable {
-  border: 2px solid #007bff !important;
-  background-color: #f8f9fa;
+.profile-header {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-.saveUpdate {
-  display: none;
+
+.profile-picP {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.detailGroup {
-  margin-bottom: 10px;
+
+.profile-form {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-textarea.editable {
-  min-height: 80px;
+
+.profile-form label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    opacity: 1;
+}
+
+.form-control.editable {
+    background-color: #fff;
+    border: 1px solid #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
+.btn-update {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-save {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-role {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+.badge-organizer {
+    background-color: #17a2b8;
+}
+
+.badge-vendor {
+    background-color: #fd7e14;
+}
+
+.badge-client {
+    background-color: #6f42c1;
+}
+
+.joined-date {
+    font-size: 0.9rem;
+    color: #6c757d;
 }

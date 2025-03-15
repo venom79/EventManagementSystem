@@ -90,7 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['updateProfile'])) {
     exit;
 }
 
-
 mysqli_close($conn);
 ?>
 
@@ -100,131 +99,211 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../public/styles/style.css">
-    <link rel="stylesheet" href="../public/styles/header.css">
     <link rel="stylesheet" href="../public/styles/profilePage.css">
     <title>Profile - EMS</title>
-    <style>
-
-    </style>
 </head>
 
 <body>
-    <main class="main-box-home">
-        <?php include("../components/header.php") ?>
-        <div class="profileContainer container flex-c">
-            <div class="userDetails flex-c">
-                <div class="updateAction">
-                    <button type="button" class="btn pPUpdateBtn" id="updateProfileBtn">Update profile</button>
-                    <button type="button" class="btn saveUpdate" id="saveChangesBtn">Save changes</button>
-                </div>
-                <form id="profileForm" action="profile.php" method="post">
-                    <input type="hidden" name="updateProfile" value="1">
-                    <div class="flex-r">
-                        <div class="userImg">
-                            <img src="<?= htmlspecialchars($profile_picture ?? '../public/images/default-profile.jpg') ?>" alt="ProfilePic">
-                        </div>
-                        <div class="flex-c">
-                            <div class="detailGroup flex-r">
-                                <label for="name">Name: </label><input type="text" name="name" value="<?= htmlspecialchars($username) ?>" readonly>
-                            </div>
-                            <div class="detailGroup flex-r">
-                                <label for="email">Email: </label><input type="email" name="email" value="<?= htmlspecialchars($email) ?>" readonly>
-                            </div>
-                            <div class="detailGroup flex-r">
-                                <label for="phone">Phone: </label><input type="text" name="phone" value="<?= htmlspecialchars($phone) ?>" readonly>
-                            </div>
-                            <div class="detailGroup flex-r">
-                                <label for="role">Role: </label><input type="text" id="roleField" value="<?= ucfirst(htmlspecialchars($role)) ?>" readonly>
-                            </div>
-                            <div class="detailGroup flex-r">
-                                <label for="location">Location: </label><input type="text" name="location" value="<?= htmlspecialchars($location) ?>" readonly>
-                            </div>
-                            <div class="detailGroup flex-r">
-                                <label for="joinedDate">Joined on: </label><input type="text" id="joinedDateField" value="<?= date('d M Y', strtotime($created_at)) ?>" readonly>
-                            </div>
+    <?php include("../components/header.php") ?>
 
-                            <?php if ($role === 'organizer'): ?>
-                                <div class="detailGroup flex-r">
-                                    <label for="company_name">Company Name: </label><input type="text" name="company_name" value="<?= htmlspecialchars($extra_details['company_name'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="experience">Experience: </label><input type="number" name="experience" value="<?= htmlspecialchars($extra_details['experience'] ?? '') ?>" readonly><span> years</span>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="website">Website: </label><input type="text" name="website" value="<?= htmlspecialchars($extra_details['website'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="instagram">Instagram: </label><input type="text" name="instagram" value="<?= htmlspecialchars($extra_details['instagram'] ?? '') ?>" readonly>
-                                </div>
-                            <?php elseif ($role === 'vendor'): ?>
-                                <div class="detailGroup flex-r">
-                                    <label for="business_name">Business Name: </label><input type="text" name="business_name" value="<?= htmlspecialchars($extra_details['business_name'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="service">Service: </label>
-                                    <select name="service" disabled>
-                                        <option value="catering" <?= ($extra_details['service'] ?? '') === 'catering' ? 'selected' : '' ?>>Catering</option>
-                                        <option value="photography" <?= ($extra_details['service'] ?? '') === 'photography' ? 'selected' : '' ?>>Photography</option>
-                                        <option value="decor" <?= ($extra_details['service'] ?? '') === 'decor' ? 'selected' : '' ?>>Decor</option>
-                                    </select>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="website">Website: </label><input type="text" name="website" value="<?= htmlspecialchars($extra_details['website'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="instagram">Instagram: </label><input type="text" name="instagram" value="<?= htmlspecialchars($extra_details['instagram'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="service_locations">Service Locations: </label>
-                                    <input name="service_locations"  value="<?= htmlspecialchars($extra_details['service_locations'] ?? '') ?>" readonly>
-                                </div>
-                                <div class="detailGroup flex-r">
-                                    <label for="price_range">Price Range: </label><input type="text" name="price_range" value="<?= htmlspecialchars($extra_details['price_range'] ?? '') ?>" readonly>
-                                </div>
-                            <?php endif; ?>
-                        </div>
+    <div class="container profile-container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Profile Header -->
+                <div class="profile-header d-flex flex-column flex-md-row align-items-center justify-content-between">
+                    <div class="text-center text-md-start mb-3 mb-md-0">
+                        <h1 class="mb-1"><?= htmlspecialchars($username) ?></h1>
+                        <span class="badge <?= 'badge-' . htmlspecialchars($role) ?> badge-role"><?= htmlspecialchars($role) ?></span>
+
+                        <p class="joined-date mt-2">
+                            <i class="fas fa-calendar-alt me-2"></i>Member since <?= date('d M Y', strtotime($created_at)) ?>
+                        </p>
                     </div>
-                    <button type="submit" id="submitProfileBtn" style="display: none;">Submit</button>
-                </form>
+                    <div class="text-center">
+                        <img src="<?= htmlspecialchars($profile_picture ?? '../public/images/default-profile.jpg') ?>" alt="Profile Picture" class="profile-picP">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-end mb-4">
+                    <button type="button" class="btn btn-update me-2" id="updateProfileBtn">
+                        <i class="fas fa-edit me-2"></i>Edit Profile
+                    </button>
+                    <button type="button" class="btn btn-save" id="saveChangesBtn" style="display: none;">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="profile-form">
+                    <form id="profileForm" action="profile.php" method="post">
+                        <input type="hidden" name="updateProfile" value="1">
+
+                        <h4 class="mb-4 pb-2 border-bottom">Personal Information</h4>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" name="name" value="<?= htmlspecialchars($username) ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($email) ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Phone</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="text" class="form-control" name="phone" value="<?= htmlspecialchars($phone) ?>" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                    <input type="text" class="form-control" name="location" value="<?= htmlspecialchars($location) ?>" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <?php if ($role === 'organizer'): ?>
+                            <h4 class="mb-4 pb-2 border-bottom">Organizer Information</h4>
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="company_name" class="form-label">Company Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-building"></i></span>
+                                        <input type="text" class="form-control" name="company_name" value="<?= htmlspecialchars($extra_details['company_name'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="experience" class="form-label">Experience (years)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                        <input type="number" class="form-control" name="experience" value="<?= htmlspecialchars($extra_details['experience'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                        <input type="text" class="form-control" name="website" value="<?= htmlspecialchars($extra_details['website'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="instagram" class="form-label">Instagram</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                        <input type="text" class="form-control" name="instagram" value="<?= htmlspecialchars($extra_details['instagram'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php elseif ($role === 'vendor'): ?>
+                            <h4 class="mb-4 pb-2 border-bottom">Vendor Information</h4>
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="business_name" class="form-label">Business Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-store"></i></span>
+                                        <input type="text" class="form-control" name="business_name" value="<?= htmlspecialchars($extra_details['business_name'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="service" class="form-label">Service</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-concierge-bell"></i></span>
+                                        <select class="form-select" name="service" disabled>
+                                            <option value="catering" <?= ($extra_details['service'] ?? '') === 'catering' ? 'selected' : '' ?>>Catering</option>
+                                            <option value="photography" <?= ($extra_details['service'] ?? '') === 'photography' ? 'selected' : '' ?>>Photography</option>
+                                            <option value="decor" <?= ($extra_details['service'] ?? '') === 'decor' ? 'selected' : '' ?>>Decor</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                                        <input type="text" class="form-control" name="website" value="<?= htmlspecialchars($extra_details['website'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="instagram" class="form-label">Instagram</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                        <input type="text" class="form-control" name="instagram" value="<?= htmlspecialchars($extra_details['instagram'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="service_locations" class="form-label">Service Locations</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        <input type="text" class="form-control" name="service_locations" value="<?= htmlspecialchars($extra_details['service_locations'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="price_range" class="form-label">Price Range</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                                        <input type="text" class="form-control" name="price_range" value="<?= htmlspecialchars($extra_details['price_range'] ?? '') ?>" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Save Changes Button -->
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" name="updateProfile" class="btn btn-save" id="saveChangesBtn" style="display: none;">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        document.getElementById("updateProfileBtn").addEventListener("click", function() {
-            // Get all editable inputs, selects, and textareas
-            const inputs = document.querySelectorAll("#profileForm input:not([type=hidden]):not(#roleField):not(#joinedDateField)");
-            const selects = document.querySelectorAll("#profileForm select");
-            const textareas = document.querySelectorAll("#profileForm textarea");
-            
-            // Make input fields editable and add border
-            inputs.forEach(input => {
-                input.removeAttribute("readonly");
-                input.classList.add("editable");
+        document.getElementById('updateProfileBtn').addEventListener('click', function() {
+            // Debug: Log when the button is clicked
+            console.log('Edit Profile Button Clicked');
+
+            // Make form fields editable
+            let inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(function(input) {
+                input.removeAttribute('readonly'); // Remove readonly
+                input.classList.add('editable'); // Add the editable class
             });
-            
-            // Make select fields editable
-            selects.forEach(select => {
-                select.removeAttribute("disabled");
-                select.classList.add("editable");
-            });
-            
-            // Make textarea fields editable
-            textareas.forEach(textarea => {
-                textarea.removeAttribute("readonly");
-                textarea.classList.add("editable");
-            });
-            
-            // Hide update button and show save button
-            document.getElementById("updateProfileBtn").style.display = "none";
-            document.getElementById("saveChangesBtn").style.display = "block";
+
+            // Toggle visibility of save button
+            document.getElementById('saveChangesBtn').style.display = 'inline-block';
+            document.getElementById('updateProfileBtn').style.display = 'none';
+
+            // Debug: Log to check changes
+            console.log('Fields are now editable, Save Changes button is visible');
         });
 
-        document.getElementById("saveChangesBtn").addEventListener("click", function() {
-            document.getElementById("profileForm").submit();
+        document.getElementById('saveChangesBtn').addEventListener('click', function() {
+            // Submit the form when the save button is clicked
+            document.getElementById('profileForm').submit();
+        });
+        // Optional: Add custom validation logic on form submission
+        document.getElementById('profileForm').addEventListener('submit', function(event) {
+            // Optionally add custom validation or checks before submitting
+            console.log('Form submitted');
         });
     </script>
+
 </body>
 
 </html>
