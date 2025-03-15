@@ -1,154 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=Lilita+One&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
-/* default tag styling */
-body {
-  background-color: #e8e5e5;
-  overflow-y: scroll;
-}
-li {
-  list-style: none;
-}
-a {
-  text-decoration: none;
-}
-
-.main-box-home {
+html, body {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding-top: 80px;
-  margin-bottom: 40px;
 }
 
-.container {
-  width: 78%;
-  margin: 0 auto;
+.main-content {
+  flex: 1;
 }
-.btn {
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  font-family: "Outfit", sans-serif;
-  cursor: pointer;
-}
-.btn-primary {
-  background-color: #ff6f00;
-}
-.btn-primary:hover {
-  background-color: #e65c00;
-}
-.btn-secondary {
-  background-color: white;
-}
-.btn-secondary:hover {
-  background-color: #e65c00;
-}
+
 .footer {
-  font-family: "Outfit", sans-serif;
   width: 100%;
-  height: 100px;
-  background-color: black;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
-
-.flex-r {
-  display: flex;
-  flex-direction: row;
+.card img {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
-.flex-c {
-  display: flex;
-  flex-direction: column;
-}
-
-/* form styling */
-.formContainer {
-  max-width: 650px;
-  width: 50%;
-  margin: 50px auto;
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Form Title */
-.form-title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  font-family: "Lilita One", sans-serif;
-  font-weight: 400;
-}
-
-/* Form Group */
-.form-group {
-  margin-bottom: 15px;
-  width: 95%;
-}
-
-/* Labels */
-.form-group label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  font-family: "Outfit", sans-serif;
-}
-
-/* Input Fields */
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  transition: 0.3s ease;
-  font-family: "Outfit", sans-serif;
-}
-
-/* Focus Effect */
-.form-group input:focus,
-.form-group textarea:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* Submit Button */
-.btn-submit {
-  width: 100%;
-  background: #007bff;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  font-family: "Outfit", sans-serif;
-}
-
-/* Hover Effect */
-.btn-submit:hover {
-  background: #0056b3;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .container {
-    width: 90%;
-    padding: 20px;
-  }
-}
-
-/* form styling ends */

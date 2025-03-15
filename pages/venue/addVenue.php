@@ -1,127 +1,147 @@
 <?php
 session_start();
 
-include("../../database/databaseConnection.php"); // Include your database connection
-
-// Check if user is logged in and is a venue owner
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'venue_owner') {
-    header("Location: ../login.php");
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'venue_owner') {
+    header("Location: ../../login.php");
     exit();
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+include("../../database/databaseConnection.php");
 
-    // Get form data
+$message = "";
+
+if (isset($_POST['submit']) && isset($_SESSION['user_id'])) {
     $owner_id = $_SESSION['user_id'];
-    $name = trim($_POST['name']);
-    $location = trim($_POST['location']);
+    
+    $name = trim(mysqli_real_escape_string($conn, $_POST['name']));
+    $location = trim(mysqli_real_escape_string($conn, $_POST['location']));
     $capacity = intval($_POST['capacity']);
     $price_per_day = floatval($_POST['price_per_day']);
-    $description = trim($_POST['description']);
-
-    // File Upload Handling
-    $upload_dir = "../../uploads/venue/"; // Directory to store images
-    $allowed_types = ['jpg', 'jpeg', 'png', 'gif']; // Allowed file types
-    $max_size = 5 * 1024 * 1024; // 5MB
-
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true); // Create directory if it doesn't exist
-    }
-
-    $thumbnail_url = ""; // Default empty
-
-    if (!empty($_FILES["thumbnail"]["name"])) {
-        $file_name = basename($_FILES["thumbnail"]["name"]);
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        $new_file_name = time() . "_" . $file_name; // Unique file name
-        $target_file = $upload_dir . $new_file_name;
-
-        if (!in_array($file_ext, $allowed_types)) {
-            echo "<script>alert('Invalid file type! Only JPG, PNG, GIF allowed.');</script>";
-        } elseif ($_FILES["thumbnail"]["size"] > $max_size) {
-            echo "<script>alert('File size exceeds 5MB!');</script>";
-        } elseif (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
-            $thumbnail_url = "/EventManagementSystem/uploads/venue/" . $new_file_name; // Save relative path
+    $description = trim(mysqli_real_escape_string($conn, $_POST['description']));
+    $manager_name = trim(mysqli_real_escape_string($conn, $_POST['manager_name']));
+    $manager_email = trim(mysqli_real_escape_string($conn, $_POST['manager_email']));
+    $manager_phone = trim(mysqli_real_escape_string($conn, $_POST['manager_phone']));
+    $venue_used_for = isset($_POST['venue_used_for']) ? implode(", ", $_POST['venue_used_for']) : '';
+    
+    $target_dir = "../../uploads/venue/";
+    $target_file = $target_dir . basename($_FILES["thumbnail"]["name"]);
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $allowed_types = ["jpg", "jpeg", "png", "gif"];
+    
+    if (!in_array($imageFileType, $allowed_types)) {
+        $message = "Invalid file type. Only JPG, JPEG, PNG & GIF allowed.";
+    } else if ($_FILES["thumbnail"]["size"] > 5000000) {
+        $message = "File size too large. Max 5MB allowed.";
+    } else {
+        if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
+            $sql = "INSERT INTO venues (name, location, capacity, price_per_day, description, venue_used_for, manager_name, manager_email, manager_phone, thumbnail, owner_id) 
+                    VALUES ('$name', '$location', '$capacity', '$price_per_day', '$description', '$venue_used_for', '$manager_name', '$manager_email', '$manager_phone', '$target_file', '$owner_id')";
+            
+            if (mysqli_query($conn, $sql)) {
+                $message = "Venue added successfully!";
+                $alertType = "success";
+            } else {
+                $message = "Error: " . mysqli_error($conn);
+                $alertType = "danger";
+            }
         } else {
-            echo "<script>alert('Failed to upload image!');</script>";
+            $message = "Error uploading file.";
+            $alertType = "danger";
         }
     }
-
-    // Insert into database (status will be 'pending' for admin approval)
-    $query = "INSERT INTO venues (owner_id, name, location, capacity, price_per_day, description, thumbnail, status) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')";
-
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("issidss", $owner_id, $name, $location, $capacity, $price_per_day, $description, $thumbnail_url);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Venue request submitted for approval!'); window.location.href='/EventManagementSystem/pages/venue/venues.php';</script>";
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-
-    $stmt->close();
-    $conn->close();
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Venue</title>
-    <link rel="stylesheet" href="../../public/styles/header.css">
-    <link rel="stylesheet" href="../../public/styles/venue.css">
-    <link rel="stylesheet" href="../../public/styles/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .footer-space { margin-bottom: 20px; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    </style>
 </head>
-
 <body>
+    <?php include("../../components/header.php"); ?>
 
-    <main class="main-box-home">
-        <?php include("../../components/header.php") ?>
-        <div class="formContainer">
-            <h2 class="form-title">Add Your Venue</h2>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Add Venue</h2>
+        
+        <?php if (!empty($message)) : ?>
+            <div class="alert alert-<?php echo $alertType; ?> text-center" role="alert">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
 
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" enctype="multipart/form-data">
+        <form action="" method="POST" enctype="multipart/form-data" class="row g-3">
+            <div class="col-md-6">
+                <label for="name" class="form-label">Venue Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
 
-                <div class="form-group">
-                    <label for="name">Venue Name</label>
-                    <input type="text" id="name" name="name" required>
+            <div class="col-md-6">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="capacity" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="capacity" name="capacity" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="price_per_day" class="form-label">Price Per Day</label>
+                <input type="number" step="0.01" class="form-control" id="price_per_day" name="price_per_day" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="thumbnail" class="form-label">Venue Thumbnail</label>
+                <input type="file" class="form-control" id="thumbnail" name="thumbnail" accept="image/*" required>
+            </div>
+
+            <div class="col-md-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label">Venue Used For</label>
+                <div class="checkbox-group">
+                    <?php
+                    $options = ["Wedding", "Conference", "Party", "Concert", "Workshop", "Birthday"];
+                    foreach ($options as $option) {
+                        echo "<div class='form-check'>
+                                <input class='form-check-input' type='checkbox' name='venue_used_for[]' value='$option' id='$option'>
+                                <label class='form-check-label' for='$option'>$option</label>
+                              </div>";
+                    }
+                    ?>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="location">Location</label>
-                    <input type="text" id="location" name="location" required>
-                </div>
+            <h4 class="mt-4">Manager Details</h4>
+            <div class="col-md-4">
+                <label for="manager_name" class="form-label">Manager Name</label>
+                <input type="text" class="form-control" id="manager_name" name="manager_name" required>
+            </div>
+            <div class="col-md-4">
+                <label for="manager_email" class="form-label">Manager Email</label>
+                <input type="email" class="form-control" id="manager_email" name="manager_email" required>
+            </div>
+            <div class="col-md-4">
+                <label for="manager_phone" class="form-label">Manager Phone</label>
+                <input type="tel" class="form-control" id="manager_phone" name="manager_phone" required>
+            </div>
+            <div class="col-12 footer-space">
+                <button type="submit" class="btn btn-primary w-100" name="submit">Submit Venue Request</button>
+            </div>
+        </form>
+    </div>
 
-                <div class="form-group">
-                    <label for="capacity">Capacity</label>
-                    <input type="number" id="capacity" name="capacity" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="price_per_day">Price Per Day</label>
-                    <input type="number" step="0.01" id="price_per_day" name="price_per_day" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="4" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="thumbnail">Venue Thumbnail</label>
-                    <input type="file" id="thumbnail" name="thumbnail" accept="image/*" required>
-                </div>
-
-                <button type="submit" class="btn-submit">Submit Venue Request</button>
-            </form>
-        </div>
-    </main>
-    <?php include("../../components/footer.php") ?>
-
+    <?php include("../../components/footer.php"); ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

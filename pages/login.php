@@ -52,26 +52,38 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - EMS</title>
-    <link rel="stylesheet" href="../public/styles/header.css">
-    <link rel="stylesheet" href="../public/styles/loginRegister.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../public/styles/style.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <?php include("../components/header.php") ?>
-    <main class="main-box-home">
-        <div class="container loginC">
-            <h2>Login</h2>
-            <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
-            <form class="form" action="" method="POST">
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Log In</button>
-            </form>
-            <div class="footer-text">
-                Don't have an account? <a href="/EventManagementSystem/pages/register.php">Register here</a>.
+    <main class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="card shadow-lg p-4">
+                        <h2 class="text-center mb-4">Login</h2>
+                        <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
+                        <form action="" method="POST">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Log In</button>
+                        </form>
+                        <div class="text-center mt-3">
+                            <small>Don't have an account? <a href="/EventManagementSystem/pages/register.php">Register here</a></small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
     <?php include("../components/footer.php") ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

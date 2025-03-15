@@ -2,11 +2,6 @@
 session_start();
 include "../../database/databaseConnection.php";
 
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: ../login.php");
-//     exit();
-// }
-
 $query = "SELECT * FROM venues";
 $result = $conn->query($query);
 
@@ -27,40 +22,40 @@ if ($result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../public/styles/header.css">
-    <link rel="stylesheet" href="../../public/styles/venue.css">
+    <title>Venues - EMS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../public/styles/style.css">
-    <title>Venue - EMS</title>
 </head>
 
-<body>
-    <main class="main-box-home">
-        <?php include("../../components/header.php") ?>
-        <div class="container">
-            <div class="venueHeader flex-r">
-                <h1>Venues</h1>
-                <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'venue_owner') { ?>
-                    <a href="./addVenue.php" class="btn addVenueBtn">Request to add Venue</a>
-                <?php } ?>
-            </div>
+<body class="d-flex flex-column min-vh-100">
+    <?php include("../../components/header.php") ?>
 
-            <div class="venueTray flex-r">
-                <?php foreach ($venues as $venue) : ?>
-                    <div class="venueCard flex-c">
-                        <img src="<?= $venue['thumbnail'] ?>" alt="Venue Thumbnail">
-                        <h3><?php echo $venue["name"] ?></h3>
-                        <p>
-                            <?php
-                            $description = $venue["description"];
-                            echo strlen($description) > 100 ? substr($description, 0, 100) . "..." : $description;
-                            ?>
-                        </p>
-                        <a href="<?= 'venueDetails.php?venueId='. $venue['id']?>">View Venue</a>
+    <main class="container my-4 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm mb-4">
+            <h1 class="m-0">Venues</h1>
+            <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'venue_owner') { ?>
+                <a href="./addVenue.php" class="btn btn-danger">Request to add Venue</a>
+            <?php } ?>
+        </div>
+
+        <div class="row g-4">
+            <?php foreach ($venues as $venue) : ?>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <img src="<?= $venue['thumbnail'] ?>" class="card-img-top" alt="Venue Thumbnail">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><?= htmlspecialchars($venue["name"]) ?></h5>
+                            <p class="card-text text-muted">
+                                <?= strlen($venue["description"]) > 100 ? substr($venue["description"], 0, 100) . "..." : htmlspecialchars($venue["description"]) ?>
+                            </p>
+                            <a href="venueDetails.php?venueId=<?= $venue['id'] ?>" class="btn btn-dark mt-auto">View Venue</a>
+                        </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </main>
+
     <?php include("../../components/footer.php") ?>
 </body>
 
