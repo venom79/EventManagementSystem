@@ -66,8 +66,8 @@ while ($row = $imagesResult->fetch_assoc()) {
         }
 
         .venue-images img {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             cursor: pointer;
             border-radius: 5px;
             object-fit: cover;
@@ -111,7 +111,7 @@ while ($row = $imagesResult->fetch_assoc()) {
                     <h4 class="text-info">More Images</h4>
                     <div class="venue-images d-flex flex-wrap">
                         <?php foreach ($venueImages as $image) { ?>
-                            <img src="<?php echo htmlspecialchars($image); ?>" onclick="changeMainImage(this.src)" alt="Venue Image">
+                            <img src="../../<?php echo htmlspecialchars($image); ?>" onclick="changeMainImage(this.src)" alt="Venue Image">
                         <?php } ?>
                     </div>
                 </div>

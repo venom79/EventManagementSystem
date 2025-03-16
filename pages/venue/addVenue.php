@@ -38,7 +38,7 @@ if (isset($_POST['submit']) && isset($_SESSION['user_id'])) {
                     VALUES ('$name', '$location', '$capacity', '$price_per_day', '$description', '$venue_used_for', '$manager_name', '$manager_email', '$manager_phone', '$target_file', '$owner_id')";
             
             if (mysqli_query($conn, $sql)) {
-                $message = "Venue added successfully!";
+                $message = "Venue Request added successfully!";
                 $alertType = "success";
             } else {
                 $message = "Error: " . mysqli_error($conn);

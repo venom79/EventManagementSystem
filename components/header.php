@@ -109,6 +109,8 @@ if (isset($_SESSION['user_id'])) {
                             <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/vendor/vendor_dashboard.php">Dashboard</a></li>
                         <?php elseif ($_SESSION['role'] === 'organizer'): ?>
                             <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/vendor/vendor_dashboard.php">organizer</a></li>
+                        <?php elseif ($_SESSION['role'] === 'venue_owner'): ?>
+                            <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/venueOwner/venues.php">Dashboard</a></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="/EventManagementSystem/middleware/logout.php">Logout</a></li>
                     </ul>
