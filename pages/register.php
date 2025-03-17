@@ -259,7 +259,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <option value="">Type of service*</option>
                     <option value="catering">Catering</option>
                     <option value="photography">Photography</option>
-                    <option value="decor">Decor</option>
+                    <option value="decorator">Decor</option>
+                    <option value="anchor">Anchor</option>
+                    <option value="dj">Dj</option>
+                    <option value="karaoke">Karaoke</option>
                 </select>
                 <input type="url" class="form-control mt-2" name="website_v" placeholder="Website">
                 <input type="url" class="form-control mt-2" name="instagram_v" placeholder="Instagram">

@@ -88,7 +88,7 @@ if (isset($_SESSION['user_id'])) {
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/aboutus.php">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/events/events.php">Events</a></li>
+                <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/organizers/organizers.php">Organizers</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/venue/venues.php">Venues</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/vendors/vendors.php">Vendors</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/contactUs.php">Contact Us</a></li>
