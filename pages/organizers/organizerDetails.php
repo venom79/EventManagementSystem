@@ -20,7 +20,7 @@ $result = $stmt->get_result();
 $organizer = $result->fetch_assoc();
 
 // Fetch organizer photos
-$photo_query = "SELECT photo_url FROM vendor_photos WHERE vendor_id = ?";
+$photo_query = "SELECT photo_url FROM organizer_photos WHERE organizer_id = ?";
 $photo_stmt = $conn->prepare($photo_query);
 $photo_stmt->bind_param("i", $organizer_id);
 $photo_stmt->execute();
@@ -85,6 +85,7 @@ $photos = $photo_result->fetch_all(MYSQLI_ASSOC);
     <div class="container mt-5">
         <div class="profile-card text-center">
             <h2><?= htmlspecialchars($organizer['company_name'] ?? 'Not Available') ?></h2>
+            <p><?= htmlspecialchars($organizer['description']) ?></p>
             <p><strong>Speciality:</strong> <?= htmlspecialchars($organizer['speciality'] ?? 'Not Specified') ?></p>
             <p><strong>Location:</strong> <?= htmlspecialchars($organizer['location'] ?? 'Not Provided') ?></p>
             <p><strong>Experience:</strong> <?= htmlspecialchars($organizer['experience'] ?? '0') ?> years</p>
@@ -112,7 +113,7 @@ $photos = $photo_result->fetch_all(MYSQLI_ASSOC);
         <div class="photo-gallery text-center mt-3">
             <?php if (count($photos) > 0) { 
                 foreach ($photos as $photo) { ?>
-                    <img src="<?= htmlspecialchars($photo['photo_url']) ?>" alt="Organizer Photo">
+                    <img src="../../<?= htmlspecialchars($photo['photo_url']) ?>" alt="Organizer Photo">
             <?php } } else { ?>
                 <p>No photos uploaded yet.</p>
             <?php } ?>

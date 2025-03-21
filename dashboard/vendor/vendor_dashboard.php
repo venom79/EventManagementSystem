@@ -42,14 +42,14 @@ $images_stmt->close();
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_details'])) {
     $business_name = trim($_POST['business_name']);
     $description = trim($_POST['description']);
-    $service = trim($_POST['service']);
+    // $service = trim($_POST['service']);
     $website = trim($_POST['website']);
     $instagram = trim($_POST['instagram']);
     $service_locations = trim($_POST['service_locations']);
     $price_range = trim($_POST['price_range']);
 
-    $stmt = $conn->prepare("UPDATE vendors SET business_name=?, description=?, service=?, website=?, instagram=?, service_locations=?, price_range=? WHERE id=?");
-    $stmt->bind_param("sssssssi", $business_name, $description, $service, $website, $instagram, $service_locations, $price_range, $vendor_id);
+    $stmt = $conn->prepare("UPDATE vendors SET business_name=?, description=?, website=?, instagram=?, service_locations=?, price_range=? WHERE id=?");
+    $stmt->bind_param("ssssssi", $business_name, $description, $website, $instagram, $service_locations, $price_range, $vendor_id);
 
     if ($stmt->execute()) {
         header("Location: vendor_dashboard.php?success=Details updated");
