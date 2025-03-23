@@ -10,11 +10,14 @@ include(__DIR__ . "/../database/databaseConnection.php");
 // Default profile picture
 $profilePic = "/EventManagementSystem/uploads/profilePics/default.png";
 
-// Fetch user profile picture and role if logged in
+// Initialize role and notification count
 $role = null;
+$unreadNotifications = 0;
+
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 
+    // Fetch user profile picture and role
     $query = "SELECT profile_picture, role FROM users WHERE id = ?";
     $stmt = mysqli_prepare($conn, $query);
     mysqli_stmt_bind_param($stmt, "i", $user_id);
@@ -28,6 +31,18 @@ if (isset($_SESSION['user_id'])) {
         $role = $row['role']; // Fetch user role
     }
     mysqli_stmt_close($stmt);
+
+    // Fetch unread notification count
+    $notifQuery = "SELECT COUNT(*) AS unread_count FROM notifications WHERE user_id = ? AND status = 'unread'";
+    $notifStmt = mysqli_prepare($conn, $notifQuery);
+    mysqli_stmt_bind_param($notifStmt, "i", $user_id);
+    mysqli_stmt_execute($notifStmt);
+    $notifResult = mysqli_stmt_get_result($notifStmt);
+    
+    if ($notifRow = mysqli_fetch_assoc($notifResult)) {
+        $unreadNotifications = $notifRow['unread_count'];
+    }
+    mysqli_stmt_close($notifStmt);
 }
 ?>
 
@@ -38,6 +53,7 @@ if (isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         .navbar {
@@ -63,6 +79,25 @@ if (isset($_SESSION['user_id'])) {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+        }
+        .notification-icon {
+            position: relative;
+            display: inline-block;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 3px 6px;
         }
         .dropdown-menu {
             background-color: #222245;
@@ -99,21 +134,32 @@ if (isset($_SESSION['user_id'])) {
                     <a href="/EventManagementSystem/pages/register.php" class="btn btn-warning">Register</a>
                 </div>
             <?php else: ?>
-                <div class="dropdown">
-                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="<?php echo htmlspecialchars($profilePic, ENT_QUOTES, 'UTF-8'); ?>" alt="Profile Picture" class="profile-pic">
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/EventManagementSystem/pages/profile.php">Profile</a></li>
-                        <?php if ($_SESSION['role'] === 'vendor'): ?>
-                            <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/vendor/vendor_dashboard.php">Dashboard</a></li>
-                        <?php elseif ($_SESSION['role'] === 'organizer'): ?>
-                            <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/organizer/organizer_dashboard.php">Dashboard</a></li>
-                        <?php elseif ($_SESSION['role'] === 'venue_owner'): ?>
-                            <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/venueOwner/venues.php">Dashboard</a></li>
+                <div class="d-flex align-items-center">
+                    <!-- Notification Icon -->
+                    <a href="/EventManagementSystem/pages/notifications.php" class="notification-icon">
+                        <i class="bi bi-bell"></i>
+                        <?php if ($unreadNotifications > 0): ?>
+                            <span class="notif-badge"><?php echo $unreadNotifications; ?></span>
                         <?php endif; ?>
-                        <li><a class="dropdown-item" href="/EventManagementSystem/middleware/logout.php">Logout</a></li>
-                    </ul>
+                    </a>
+
+                    <!-- Profile Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="<?php echo htmlspecialchars($profilePic, ENT_QUOTES, 'UTF-8'); ?>" alt="Profile Picture" class="profile-pic">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/EventManagementSystem/pages/profile.php">Profile</a></li>
+                            <?php if ($role === 'vendor'): ?>
+                                <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/vendor/vendor_dashboard.php">Dashboard</a></li>
+                            <?php elseif ($role === 'organizer'): ?>
+                                <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/organizer/organizer_dashboard.php">Dashboard</a></li>
+                            <?php elseif ($role === 'venue_owner'): ?>
+                                <li><a class="dropdown-item" href="/EventManagementSystem/dashboard/venueOwner/venues.php">Dashboard</a></li>
+                            <?php endif; ?>
+                            <li><a class="dropdown-item" href="/EventManagementSystem/middleware/logout.php">Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
@@ -122,9 +168,5 @@ if (isset($_SESSION['user_id'])) {
 
 <div style="margin-top: 80px;"></div> <!-- Spacer to prevent content from being hidden behind navbar -->
 
-<!-- Move Bootstrap JS to the bottom for better performance -->
-
-
 </body>
-</html>
-
+</html> 

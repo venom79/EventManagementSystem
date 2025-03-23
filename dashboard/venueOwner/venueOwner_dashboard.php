@@ -184,6 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
 <body>
     <?php include("../../components/header.php") ?>
     <div class="container mt-4 mb-5">
+        <a class="btn btn-secondary mb-3" href="./venues.php">← Back</a>
         <div class="d-flex justify-content-between align-items-center">
             <h2>Welcome, <?php echo htmlspecialchars($venue['manager_name']); ?></h2>
         </div>
@@ -207,7 +208,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
                     </div>
                     <div class="mb-3">
                         <label class="form-label">location</label>
-                        <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($venue['location']); ?>" readonly>
+                        <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($venue['location']); ?>">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">capacity</label>

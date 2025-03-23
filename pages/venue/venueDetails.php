@@ -124,7 +124,10 @@ while ($row = $imagesResult->fetch_assoc()) {
                 <p><strong>Location:</strong> <?php echo htmlspecialchars($venue['location']); ?></p>
                 <p><strong>Best for :</strong> <?php echo htmlspecialchars($venue['venue_used_for']); ?></p>
                 <p><strong>Capacity:</strong> <?php echo htmlspecialchars($venue['capacity']); ?> people</p>
-                <p><strong>Price Per Day:</strong> ₹<?php echo htmlspecialchars($venue['price_per_day']); ?></p>
+                <div class="d-md-flex justify-content-between align-items-md-center mb-2">
+                    <p><strong>Price Per Day:</strong> ₹<?php echo htmlspecialchars($venue['price_per_day']); ?></p>
+                    <a href="./venueBooking.php?venueId=<?php echo htmlspecialchars($venueId); ?>" class="btn btn-danger">Book now</a>
+                </div>
                 <p><?php echo htmlspecialchars($venue['description']); ?></p>
             </div>
             <div class="col-lg-6">
@@ -184,3 +187,5 @@ while ($row = $imagesResult->fetch_assoc()) {
 </body>
 
 </html>
+
+
