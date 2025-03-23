@@ -15,18 +15,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_as_read'])) {
     exit();
 }
 
-// Fetch notifications
+// Fetch notifications for both venue and vendor bookings
 $notifQuery = "
     SELECT 
         n.id, 
         n.message, 
         n.status, 
         n.created_at, 
-        v.id AS venue_id, 
-        v.name AS venue_name
+        vb.venue_id, 
+        v.name AS venue_name, 
+        vdb.vendor_id, 
+        vd.business_name AS vendor_name
     FROM notifications AS n
-    JOIN venue_bookings AS vb ON vb.id = n.booking_id
-    JOIN venues AS v ON v.id = vb.venue_id
+    LEFT JOIN venue_bookings AS vb ON vb.id = n.booking_id
+    LEFT JOIN venues AS v ON v.id = vb.venue_id
+    LEFT JOIN vendor_bookings AS vdb ON vdb.id = n.booking_id
+    LEFT JOIN vendors AS vd ON vd.id = vdb.vendor_id
     WHERE n.user_id = ? 
     ORDER BY n.created_at DESC;
 ";
@@ -100,10 +104,11 @@ $notifications = $result->fetch_all(MYSQLI_ASSOC);
         foreach ($notifications as $notification) {
             if ($notification['status'] === 'unread') {
                 $hasUnread = true;
+                $source = $notification['venue_name'] ? $notification['venue_name'] : $notification['vendor_name'];
         ?>
                 <div class="notification-card border-start border-3 border-primary">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-1"><?= htmlspecialchars($notification['venue_name']) ?></h5>
+                        <h5 class="mb-1"><?= htmlspecialchars($source) ?></h5>
                         <span class="badge bg-warning status-badge">Unread</span>
                     </div>
                     <p class="mb-1"><?= nl2br(htmlspecialchars($notification['message'])) ?></p>
@@ -129,10 +134,11 @@ $notifications = $result->fetch_all(MYSQLI_ASSOC);
         foreach ($notifications as $notification) {
             if ($notification['status'] === 'read') {
                 $hasRead = true;
+                $source = $notification['venue_name'] ? $notification['venue_name'] : $notification['vendor_name'];
         ?>
                 <div class="notification-card">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-1"><?= htmlspecialchars($notification['venue_name']) ?></h5>
+                        <h5 class="mb-1"><?= htmlspecialchars($source) ?></h5>
                         <span class="badge bg-success status-badge">Read</span>
                     </div>
                     <p class="mb-1"><?= nl2br(htmlspecialchars($notification['message'])) ?></p>

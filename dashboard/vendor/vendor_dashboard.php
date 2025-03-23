@@ -141,9 +141,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_review'])) {
     }
     $stmt->close();
 }
-?>
 
-
+// redirection to bookingRequest page
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['viewBooking'])) {
+    $vendorId = $_POST['vendorId'];
+    $_SESSION['vendorId'] = $vendorId;
+    header("Location: bookingRequest.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -155,56 +159,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_review'])) {
     <title>Vendor Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-    .image-container {
-        position: relative;
-        overflow: hidden;
-        border-radius: 10px;
-    }
+        .image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
 
-    .image-container img {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-    }
+        .image-container img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
 
-    .image-container img:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
+        .image-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
 
-    .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.4);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .image-container:hover .overlay {
-        opacity: 1;
-    }
+        .image-container:hover .overlay {
+            opacity: 1;
+        }
 
-    .btn {
-        border-radius: 5px;
-        padding: 10px 20px;
-    }
+        .btn {
+            border-radius: 5px;
+            padding: 10px 20px;
+        }
 
-    .btn-danger {
-        background-color: #dc3545;
-        border: none;
-    }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
 
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-</style>
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 
 <body>
@@ -212,6 +216,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_review'])) {
     <div class="container mt-4 mb-5">
         <div class="d-flex justify-content-between align-items-center">
             <h2>Welcome, <?php echo htmlspecialchars($vendor['business_name']); ?></h2>
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST">
+                <input type="hidden" name="vendorId" value="<?= $vendor_id ?>">
+                <input type="submit" value="check bookings" name="viewBooking" class="btn btn-success mt-2">  
+            </form>
         </div>
 
         <!-- Display Success/Error Messages -->
@@ -285,30 +293,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_review'])) {
         </div>
 
 
-        
+
         <div class="row mt-4">
-                <div class="col-md-12">
-                    <h3>User Reviews</h3>
-                    <?php if ($reviews_result->num_rows > 0) { ?>
-                        <ul class="list-group">
-                            <?php while ($review = $reviews_result->fetch_assoc()) { ?>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($review['username']); ?>:</strong>
-                                        <p><?php echo htmlspecialchars($review['review']); ?></p>
-                                    </div>
-                                    <form method="POST">
-                                        <input type="hidden" name="review_id" value="<?php echo $review['id']; ?>">
-                                        <button type="submit" name="delete_review" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </li>
-                            <?php } ?>
-                        </ul>
-                    <?php } else { ?>
-                        <p class="text-muted">No reviews available.</p>
-                    <?php } ?>
-                </div>
+            <div class="col-md-12">
+                <h3>User Reviews</h3>
+                <?php if ($reviews_result->num_rows > 0) { ?>
+                    <ul class="list-group">
+                        <?php while ($review = $reviews_result->fetch_assoc()) { ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong><?php echo htmlspecialchars($review['username']); ?>:</strong>
+                                    <p><?php echo htmlspecialchars($review['review']); ?></p>
+                                </div>
+                                <form method="POST">
+                                    <input type="hidden" name="review_id" value="<?php echo $review['id']; ?>">
+                                    <button type="submit" name="delete_review" class="btn btn-danger">Delete</button>
+                                </form>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                <?php } else { ?>
+                    <p class="text-muted">No reviews available.</p>
+                <?php } ?>
             </div>
+        </div>
     </div>
     <?php include("../../components/footer.php") ?>
 </body>
@@ -325,4 +333,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_review'])) {
 </script>
 
 </html>
+
 </html>

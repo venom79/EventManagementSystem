@@ -37,13 +37,14 @@ while ($row = $bookingsResult->fetch_assoc()) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $eventDate = $_POST['event_date'];
+    $eventPurpose = $_POST['event_purpose'];
     if (!$eventDate || strtotime($eventDate) < strtotime(date("Y-m-d"))) {
         echo "<script>alert('Invalid event date. Please select a future date.');</script>";
     } elseif (in_array($eventDate, $bookedDates)) {
         echo "<script>alert('This date is already booked. Please select another.');</script>";
     } else {
-        $insertQuery = $conn->prepare("INSERT INTO venue_bookings (user_id, venue_id, event_date, status, created_at, updated_at) VALUES (?, ?, ?, 'pending', NOW(), NOW())");
-        $insertQuery->bind_param("iis", $userId, $venueId, $eventDate);
+        $insertQuery = $conn->prepare("INSERT INTO venue_bookings (user_id, venue_id, event_date,	event_purpose, status, created_at, updated_at) VALUES (?, ?, ?, ?,'pending', NOW(), NOW())");
+        $insertQuery->bind_param("iiss", $userId, $venueId, $eventDate,$eventPurpose);
         if ($insertQuery->execute()) {
             echo "<script>alert('Booking request submitted successfully!'); window.location.href='venues.php';</script>";
         } else {
@@ -84,6 +85,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="mb-3">
                         <label for="event_date" class="form-label">Select Event Date</label>
                         <input type="date" class="form-control" id="event_date" name="event_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="event_purpose" class="form-label">What will the venue be used for?</label>
+                        <input type="text" class="form-control" name="event_purpose" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Submit Booking Request</button>
                 </form>

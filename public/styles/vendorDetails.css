@@ -130,6 +130,33 @@
   font-size: 1.2rem;
 }
 
+/* book now button */
+.btn-book{
+  background: linear-gradient(135deg, #f39c12, #e67e22);/* A warm orange shade */
+}
+
+.star-rating .stars {
+  display: inline-flex;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.star-rating .stars i {
+  color: #ffc107;
+  margin-right: 5px;
+  transition: all 0.2s ease;
+}
+
+.star-rating .stars i:hover,
+.star-rating .stars i.fas {
+  transform: scale(1.1);
+}
+
+.rating-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
 @media (max-width: 768px) {
   .vendor-header {
     padding: 40px 20px;

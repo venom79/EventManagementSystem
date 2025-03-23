@@ -60,14 +60,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
     $userName = $_POST['userName'];
     $date = $_POST['date'];
 
-    $message = "Dear $userName,\n\n"
-        . "We're excited to inform you that your booking for $venueName on $date has been **confirmed!** 🎊\n\n"
-        . "We look forward to hosting your event. If you have any special requirements or need further assistance, feel free to reach out.\n\n"
-        . "Thank you for choosing us!\n\n"
-        . "Best Regards,\n"
-        . "$venueName";
-
-
     if (!$venueId) {
         die("Venue ID is missing!");
     }
@@ -96,7 +88,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
                 . "Best Regards,\n"
                 . "$venueName";
         }
-        $formattedMessage = nl2br($message);
         $notify_stmt = $conn->prepare("INSERT INTO notifications (user_id,booking_id,booking_type,message)      VALUES(?,?,'venue',?)");
         if (!$notify_stmt) {
             die("Query preparation failed: " . $conn->error);
@@ -104,9 +95,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
         $notify_stmt->bind_param("iis", $user_id, $booking_id, $message);
         $notify_stmt->execute();
         $notify_stmt->close();
+
+        if ($status === "cancelled") {
+            // Delete the booking from the database
+            $delete_stmt = $conn->prepare("DELETE FROM venue_bookings WHERE id = ?");
+            if (!$delete_stmt) {
+                die("Query preparation failed: " . $conn->error);
+            }
+            $delete_stmt->bind_param("i", $booking_id);
+            $delete_stmt->execute();
+            $delete_stmt->close();
+        }
     }
 
-    header("Location: bookingRequest.php?venueId=$venueId");
+    header("Location: bookingRequest.php");
     exit();
 }
 

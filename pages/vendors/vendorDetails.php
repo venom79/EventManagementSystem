@@ -53,8 +53,6 @@ $stmt->bind_param("i", $vendorId);
 $stmt->execute();
 $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-
-
 // Ensure proper WhatsApp format
 $phone = preg_replace('/[^0-9]/', '', $vendor['phone']);
 if (strlen($phone) === 10) {
@@ -71,11 +69,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
 
     // Validate input
     if ($rating >= 1 && $rating <= 5) {
-        // Insert rating into vendor_ratings
-        $insertRating = "INSERT INTO vendor_ratings (vendor_id, user_id, rating, created_at) VALUES (?, ?, ?, NOW())";
-        $stmt = $conn->prepare($insertRating);
-        $stmt->bind_param("iii", $vendorId, $userId, $rating);
+        // Check if user has already rated this vendor
+        $checkRating = "SELECT id FROM vendor_ratings WHERE vendor_id = ? AND user_id = ? LIMIT 1";
+        $stmt = $conn->prepare($checkRating);
+        $stmt->bind_param("ii", $vendorId, $userId);
         $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            // Update existing rating
+            $ratingId = $result->fetch_assoc()['id'];
+            $updateRating = "UPDATE vendor_ratings SET rating = ?, created_at = NOW() WHERE id = ?";
+            $stmt = $conn->prepare($updateRating);
+            $stmt->bind_param("ii", $rating, $ratingId);
+            $stmt->execute();
+        } else {
+            // Insert new rating
+            $insertRating = "INSERT INTO vendor_ratings (vendor_id, user_id, rating, created_at) VALUES (?, ?, ?, NOW())";
+            $stmt = $conn->prepare($insertRating);
+            $stmt->bind_param("iii", $vendorId, $userId, $rating);
+            $stmt->execute();
+        }
     }
 
     if (!empty($review)) {
@@ -104,8 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="../../public/styles/style.css">
     <link rel="stylesheet" href="../../public/styles/vendorDetails.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -161,6 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
                             <a href="https://wa.me/<?php echo htmlspecialchars($phone); ?>" target="_blank" class="btn btn-glass btn-whatsapp">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
+
+                            <a href="./vendorBooking.php?vendorId=<?php echo htmlspecialchars($vendorId)?>" class="btn btn-glass btn-book">
+                                <i class="fas fa-clipboard-list"></i> Book Now
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -198,14 +215,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
                     <!-- Review Form -->
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <form method="POST" class="mb-4">
-                            <label class="fw-bold">Rating:</label>
-                            <select name="rating" class="form-select mb-2" required>
-                                <option value="1">1 Star</option>
-                                <option value="2">2 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="5">5 Stars</option>
-                            </select>
+                            <div class="mb-3">
+                                <label class="fw-bold">Rating:</label>
+                                <div class="star-rating">
+                                    <div class="stars">
+                                        <i class="far fa-star" data-rating="1"></i>
+                                        <i class="far fa-star" data-rating="2"></i>
+                                        <i class="far fa-star" data-rating="3"></i>
+                                        <i class="far fa-star" data-rating="4"></i>
+                                        <i class="far fa-star" data-rating="5"></i>
+                                    </div>
+                                    <input type="hidden" name="rating" id="selected-rating" value="0" required>
+                                    <div class="rating-text mt-1">Click to rate</div>
+                                </div>
+                            </div>
 
                             <label class="fw-bold">Review:</label>
                             <textarea name="review" class="form-control mb-3" rows="3" placeholder="Write your review..."></textarea>
@@ -250,6 +273,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
     <?php include("../../components/footer.php"); ?>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star-rating .stars i');
+            const ratingInput = document.getElementById('selected-rating');
+            const ratingText = document.querySelector('.rating-text');
+
+            // Function to update stars display
+            function updateStars(rating) {
+                stars.forEach(star => {
+                    const starValue = parseInt(star.getAttribute('data-rating'));
+                    if (starValue <= rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                    }
+                });
+
+                // Update the text based on rating
+                const ratingTexts = ['Click to rate', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+                ratingText.textContent = ratingTexts[rating] || ratingTexts[0];
+            }
+
+            // Handle star click
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    updateStars(rating);
+                });
+            });
+
+            // Check for existing user rating
+            <?php if (isset($_SESSION['user_id'])): ?>
+                // Fetch user's previous rating if it exists
+                <?php
+                if (isset($_SESSION['user_id'])) {
+                    $userId = $_SESSION['user_id'];
+                    $checkRating = "SELECT rating FROM vendor_ratings WHERE vendor_id = ? AND user_id = ? LIMIT 1";
+                    $stmt = $conn->prepare($checkRating);
+                    $stmt->bind_param("ii", $vendorId, $userId);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+
+                    if ($result->num_rows > 0) {
+                        $userRating = $result->fetch_assoc()['rating'];
+                        echo "const userPreviousRating = " . $userRating . ";";
+                        echo "ratingInput.value = userPreviousRating;";
+                        echo "updateStars(userPreviousRating);";
+                    }
+                }
+                ?>
+            <?php endif; ?>
+        });
+    </script>
 </body>
 
 </html>
