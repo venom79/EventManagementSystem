@@ -126,6 +126,9 @@ if (isset($_SESSION['user_id'])) {
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/organizers/organizers.php">Organizers</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/venue/venues.php">Venues</a></li>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/vendors/vendors.php">Vendors</a></li>
+                <?php if (isset($_SESSION['user_id'])){ ?>
+                    <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/myBooking.php">My Booking</a></li>
+                <?php } ?>
                 <li class="nav-item"><a class="nav-link" href="/EventManagementSystem/pages/contactUs.php">Contact Us</a></li>
             </ul>
             <?php if (!isset($_SESSION['user_id'])): ?>
