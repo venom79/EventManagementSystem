@@ -147,7 +147,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .overlay {
+        .overlayImg {
             position: absolute;
             top: 0;
             left: 0;
@@ -161,7 +161,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
             align-items: center;
         }
 
-        .image-container:hover .overlay {
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            border-radius: 8px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .map-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .image-container:hover .overlayImg {
             opacity: 1;
         }
 
@@ -207,8 +246,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
                         <textarea name="description" class="form-control" rows="4"><?php echo htmlspecialchars($venue['description']); ?></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">location</label>
-                        <input type="text" name="location" class="form-control" value="<?php echo htmlspecialchars($venue['location']); ?>">
+                        <label for="location" class="form-label">Location</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="location" name="location" value="<?php echo htmlspecialchars($venue['location']); ?>">
+                            <button type="button" class="btn btn-primary" id="openMapBtn">Choose from Map</button>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">capacity</label>
@@ -262,7 +304,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
                                 <div class="col-md-6 mb-4">
                                     <div class="image-container">
                                         <img src="../../<?php echo $image['image_url']; ?>" class="img-fluid rounded shadow-sm" alt="Service Image">
-                                        <div class="overlay d-flex justify-content-center align-items-center">
+                                        <div class="overlayImg d-flex justify-content-center align-items-center">
                                             <form method="POST">
                                                 <input type="hidden" name="photo_id" value="<?php echo $image['id']; ?>">
                                                 <button type="submit" name="delete_photo" class="btn btn-danger btn-lg">Delete</button>
@@ -279,22 +321,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
         </div>
 
 
-
-        <div class="row mt-4">
-            <!-- Left Column: booking form -->
-            <div class="col-md-6">
-                <h3>Book Venue</h3>
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">date</label>
-                        <input type="date" name="booking_date" class="form-control" required>
-                    </div>
-                </form>
-            </div>
+    </div>
+    <!-- Map Modal -->
+    <div class="overlay" id="overlay"></div>
+    <div class="map-container" id="mapModal">
+        <h4>Select Venue Location</h4>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="searchBox" placeholder="Search for a location">
+            <button class="btn btn-outline-secondary" type="button" id="searchButton">Search</button>
+        </div>
+        <div id="map"></div>
+        <p id="selectedLocation">Selected location: None</p>
+        <div class="map-controls">
+            <button type="button" class="btn btn-secondary me-2" id="closeMapBtn">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmLocationBtn">Confirm Location</button>
         </div>
     </div>
     <?php include("../../components/footer.php") ?>
@@ -310,6 +350,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
         }
     }, 5000);
 </script>
+<!-- Load Google Maps API with Places library -->
+<script src="../../scripts/mapAPI.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAOVuLc_x9djuj2cPvF-KaxiK8EybwJ4&libraries=places&callback=initMap" async defer></script>
 
 </html>
 
