@@ -1,4 +1,10 @@
 <?php
+require __DIR__ . '../../../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../config/');
+$dotenv->load();
+$apiKey = $_ENV['API_KEY'];
+
 session_start();
 require '../../database/databaseConnection.php';
 
@@ -352,7 +358,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['delete_photo'])) {
 </script>
 <!-- Load Google Maps API with Places library -->
 <script src="../../scripts/mapAPI.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAOVuLc_x9djuj2cPvF-KaxiK8EybwJ4&libraries=places&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $apiKey; ?>&libraries=places&callback=initMap" async defer></script>
 
 </html>
 

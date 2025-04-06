@@ -1,4 +1,10 @@
 <?php
+require __DIR__ . '../../../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../config/');
+$dotenv->load();
+$apiKey = $_ENV['API_KEY'];
+
 session_start();
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'venue_owner') {
@@ -112,6 +118,7 @@ if (isset($_POST['submit']) && isset($_SESSION['user_id'])) {
             margin-top: 10px;
         }
     </style>
+    
 </head>
 
 <body>
@@ -213,7 +220,8 @@ if (isset($_POST['submit']) && isset($_SESSION['user_id'])) {
     <?php include("../../components/footer.php"); ?>
     <!-- Load Google Maps API with Places library -->
     <script src="../../scripts/mapAPI.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOAOVuLc_x9djuj2cPvF-KaxiK8EybwJ4&libraries=places&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $apiKey; ?>&libraries=places&callback=initMap" async defer></script>
+
 </body>
 
 </html>
