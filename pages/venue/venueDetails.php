@@ -124,10 +124,14 @@ while ($row = $imagesResult->fetch_assoc()) {
                 <p><strong>Location:</strong> <?php echo htmlspecialchars($venue['location']); ?></p>
                 <p><strong>Best for :</strong> <?php echo htmlspecialchars($venue['venue_used_for']); ?></p>
                 <p><strong>Capacity:</strong> <?php echo htmlspecialchars($venue['capacity']); ?> people</p>
-                <div class="d-md-flex justify-content-between align-items-md-center mb-2">
+                <div class="d-md-flex justify-content-between align-items-md-center mb-2 flex-wrap gap-2">
                     <p><strong>Price Per Day:</strong> ₹<?php echo htmlspecialchars($venue['price_per_day']); ?></p>
-                    <a href="./venueBooking.php?venueId=<?php echo htmlspecialchars($venueId); ?>" class="btn btn-danger">Book now</a>
+                    <div class="d-flex gap-2">
+                        <a href="./venueBooking.php?venueId=<?php echo htmlspecialchars($venueId); ?>" class="btn btn-danger">Book now</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($venue['location']); ?>" target="_blank" class="btn btn-primary">Direction</a>
+                    </div>
                 </div>
+
                 <p><?php echo htmlspecialchars($venue['description']); ?></p>
             </div>
             <div class="col-lg-6">
@@ -170,9 +174,9 @@ while ($row = $imagesResult->fetch_assoc()) {
                 ],
                 dayCellDidMount: function(info) {
                     let today = new Date();
-                    let todayStr = today.toLocaleDateString('en-CA'); 
+                    let todayStr = today.toLocaleDateString('en-CA');
                     let cellDate = new Date(info.date);
-                    let cellDateStr = cellDate.toLocaleDateString('en-CA'); 
+                    let cellDateStr = cellDate.toLocaleDateString('en-CA');
                     if (cellDateStr < todayStr) {
                         info.el.style.backgroundColor = '#d3d3d3';
                     } else if (cellDateStr === todayStr) {
@@ -187,5 +191,3 @@ while ($row = $imagesResult->fetch_assoc()) {
 </body>
 
 </html>
-
-

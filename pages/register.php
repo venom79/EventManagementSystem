@@ -1,4 +1,9 @@
 <?php
+require '../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../config/');
+$dotenv->load();
+$apiKey = $_ENV['API_KEY'];
 session_start();
 
 // Redirect if already logged in
@@ -22,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $experience = isset($_POST['experience']) ? intval($_POST['experience']) : 0;
     $website = isset($_POST['website']) ? trim($_POST['website']) : null;
     $instagram = isset($_POST['instagram']) ? trim($_POST['instagram']) : null;
-    
+
     // New: Handle specialities for organizers - make it optional
     $specialitiesString = "";
     if (isset($_POST['specialities']) && is_array($_POST['specialities'])) {
@@ -162,6 +167,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Register - EMS</title>
+    <style>
+        #map {
+            height: 300px;
+            width: 100%;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .map-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            border-radius: 8px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .map-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -190,7 +235,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="row g-2 mt-2">
                 <div class="col-md-6">
-                    <input type="text" class="form-control" name="location" placeholder="Location" required>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="location" name="location" placeholder="Location" required>
+                        <button type="button" class="btn btn-primary" id="openMapBtn">Choose from Map</button>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <select class="form-select" id="role" name="role" required>
@@ -208,7 +256,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="number" class="form-control mt-2" name="experience" placeholder="Experience (Years) *" min="0">
                 <input type="url" class="form-control mt-2" name="website" placeholder="Website">
                 <input type="url" class="form-control mt-2" name="instagram" placeholder="Instagram">
-                
+
                 <!-- New Specialities Checkboxes -->
                 <div class="mt-3">
                     <label class="form-label">Specialities (Optional)</label>
@@ -279,6 +327,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p class="mt-2 text-muted text-center">Already have an account? <a href="login.php" class="text-warning">Login here.</a></p>
         </form>
     </div>
+    <!-- Map Modal -->
+    <div class="overlay" id="overlay"></div>
+    <div class="map-container" id="mapModal">
+        <h4>Select Venue Location</h4>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" id="searchBox" placeholder="Search for a location">
+            <button class="btn btn-outline-secondary" type="button" id="searchButton">Search</button>
+        </div>
+        <div id="map"></div>
+        <p id="selectedLocation">Selected location: None</p>
+        <div class="map-controls">
+            <button type="button" class="btn btn-secondary me-2" id="closeMapBtn">Cancel</button>
+            <button type="button" class="btn btn-primary" id="confirmLocationBtn">Confirm Location</button>
+        </div>
+    </div>
     <?php include("../components/footer.php") ?>
 </body>
 <!-- <script src="../scripts/RegisterValidation.js"></script> -->
@@ -291,7 +354,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     });
 </script>
-
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+<!-- Load Google Maps API with Places library -->
+<script src="../scripts/mapAPI.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<?php echo $apiKey; ?>&libraries=places&callback=initMap" async defer></script>
 
 </html>
