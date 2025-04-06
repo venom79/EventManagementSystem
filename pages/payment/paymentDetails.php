@@ -97,25 +97,6 @@ $stmt->close();
         .value {
             font-weight: 600;
         }
-
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-
-            #receipt,
-            #receipt * {
-                visibility: visible;
-            }
-
-            #receipt {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                padding: 20px;
-            }
-        }
     </style>
 </head>
 
