@@ -9,10 +9,6 @@ if (!isset($_SESSION['vendorId']) || $_SESSION['vendorId'] <= 0) {
 }
 $vendorId = $_SESSION['vendorId'];
 
-if ($vendorId <= 0) {
-    die("Invalid vendor ID.");
-}
-
 // Fetch vendor details from the database
 $query = "SELECT * FROM vendors WHERE id = ?";
 $stmt = $conn->prepare($query);
@@ -21,12 +17,11 @@ $stmt->execute();
 $vendor = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-// Check if vendor exists
 if (!$vendor) {
     die("Vendor not found.");
 }
 
-// Fetch bookings for the vendor
+// Fetch bookings for the vendor, with payment status
 $bookings = [];
 $sql = "SELECT 
         vb.id as booking_id,
@@ -38,13 +33,16 @@ $sql = "SELECT
         v.business_name,
         u.username, 
         u.email, 
-        u.phone 
+        u.phone,
+        p.status as payment_status
     FROM 
         vendor_bookings AS vb 
     JOIN 
         vendors AS v ON vb.vendor_id = v.id
     JOIN 
         users AS u ON vb.user_id = u.id
+    LEFT JOIN 
+        payments AS p ON vb.id = p.booking_id AND p.booking_type = 'vendor'
     WHERE 
         vb.vendor_id = ?";
 
@@ -70,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
     $update_stmt->execute();
     $update_stmt->close();
 
-    //notify the customer abuot the result of his/her booking
+    // Notify the customer about the result of their booking
     if ($status === "confirmed" || $status === "cancelled") {
         $message = "";
         if ($status === 'confirmed') {
@@ -88,7 +86,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
                 . "Best regards,\n"
                 . "$business_name Team";
         }
-        $notify_stmt = $conn->prepare("INSERT INTO notifications (user_id,booking_id,booking_type,message)      VALUES(?,?,'vendor',?)");
+
+        $notify_stmt = $conn->prepare("INSERT INTO notifications (user_id, booking_id, booking_type, message) VALUES (?, ?, 'vendor', ?)");
         if (!$notify_stmt) {
             die("Query preparation failed: " . $conn->error);
         }
@@ -108,11 +107,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
         }
     }
 
-    header("Location: bookingRequest.php?");
+    header("Location: bookingRequest.php");
     exit();
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -143,6 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
                         <th>Phone</th>
                         <th>Email</th>
                         <th>Status</th>
+                        <th>Payment Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -161,7 +159,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
                                 </span>
                             </td>
                             <td>
-                                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>">
+                                <span class="badge bg-<?= 
+                                    $booking['payment_status'] === 'paid' ? 'success' : 
+                                    ($booking['payment_status'] === 'pending' ? 'danger' : 'secondary') ?>">
+                                    <?= ucfirst($booking['payment_status'] ?? 'Unpaid') ?>
+                                </span>
+                            </td>
+                            <td>
+                                <form method="POST" action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>">
                                     <input type="hidden" name="booking_id" value="<?= $booking['booking_id'] ?>">
                                     <input type="hidden" name="user_id" value="<?= $booking['user_id'] ?>">
                                     <input type="hidden" name="business_name" value="<?= htmlspecialchars($booking['business_name']) ?>">
@@ -172,7 +177,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['statusHandler'])) {
                                         <option value="confirmed" <?= ($booking['status'] === 'confirmed') ? 'selected' : '' ?>>Confirm</option>
                                         <option value="cancelled" <?= ($booking['status'] === 'cancelled') ? 'selected' : '' ?>>Cancel</option>
                                     </select>
-
                                     <input type="submit" value="Update" name="statusHandler" class="btn btn-primary btn-sm">
                                 </form>
                             </td>

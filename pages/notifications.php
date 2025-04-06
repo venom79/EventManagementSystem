@@ -111,14 +111,22 @@ $notifications = $result->fetch_all(MYSQLI_ASSOC);
                         <h5 class="mb-1"><?= htmlspecialchars($source) ?></h5>
                         <span class="badge bg-warning status-badge">Unread</span>
                     </div>
-                    <p class="mb-1"><?= nl2br(htmlspecialchars($notification['message'])) ?></p>
-                    <div class="text-end date-time">
-                        <?= date("F j, Y, g:i A", strtotime($notification['created_at'])) ?>
+                    <p class="mb-1">
+                        <?= nl2br(htmlspecialchars($notification['message'])) ?>
+                        <?php if (stripos($notification['message'], 'confirmed') !== false): ?>
+                    <div class="alert alert-info mt-2 mb-0 py-2 px-3 d-inline-block" style="font-size: 0.9rem;">
+                        💳 <strong>Action required:</strong> <a href="./myBooking.php" class="text-decoration-none fw-semibold text-primary">Pay now</a> to confirm your booking within 3 days.
                     </div>
-                    <form method="POST" class="text-end mt-2">
-                        <input type="hidden" name="notif_id" value="<?= $notification['id'] ?>">
-                        <button type="submit" name="mark_as_read" class="btn btn-sm btn-primary">Mark as Read</button>
-                    </form>
+                <?php endif; ?>
+                </p>
+
+                <div class="text-end date-time">
+                    <?= date("F j, Y, g:i A", strtotime($notification['created_at'])) ?>
+                </div>
+                <form method="POST" class="text-end mt-2">
+                    <input type="hidden" name="notif_id" value="<?= $notification['id'] ?>">
+                    <button type="submit" name="mark_as_read" class="btn btn-sm btn-primary">Mark as Read</button>
+                </form>
                 </div>
         <?php
             }

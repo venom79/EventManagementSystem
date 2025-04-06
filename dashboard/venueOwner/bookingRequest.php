@@ -20,9 +20,10 @@ $stmtVenues->execute();
 $venues = $stmtVenues->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmtVenues->close();
 
-$venueId = $_SESSION['venueId'];
+$venueId = $_GET['venueId'] ?? $_SESSION['venueId'];
+$_SESSION['venueId'] = $venueId;
 
-// Fetch the venue name for the selected venue
+// Fetch the venue name
 $venueName = "";
 if ($venueId) {
     $sqlVenueName = "SELECT name FROM venues WHERE id = ?";
@@ -36,14 +37,27 @@ if ($venueId) {
     }
 }
 
-// Fetch bookings for the selected venue
+// Fetch bookings along with payment status
 $bookings = [];
 if ($venueId) {
-    $sql = "SELECT vb.id as booking_id, vb.event_date, vb.event_purpose, vb.status, 
-                   u.username, u.email, u.phone, u.id as user_id
-            FROM venue_bookings vb
-            JOIN users u ON vb.user_id = u.id
-            WHERE vb.venue_id = ?";
+    $sql = "SELECT 
+                vb.id as booking_id,
+                vb.event_date,
+                vb.event_purpose,
+                vb.status,
+                u.username,
+                u.email,
+                u.phone,
+                u.id as user_id,
+                p.status as payment_status
+            FROM 
+                venue_bookings vb
+            JOIN 
+                users u ON vb.user_id = u.id
+            LEFT JOIN 
+                payments p ON p.booking_id = vb.id AND p.booking_type = 'venue'
+            WHERE 
+                vb.venue_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $venueId);
     $stmt->execute();
@@ -51,11 +65,11 @@ if ($venueId) {
     $stmt->close();
 }
 
-// Change the stutus of the booking
+// Change the status of the booking
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
-    $status = isset($_POST['status']) ? $_POST['status'] : 'pending';
-    $booking_id = isset($_POST['booking_id']) ? $_POST['booking_id'] : null;
-    $venueId = isset($_POST['venue_id']) ? $_POST['venue_id'] : $_GET['venueId'];
+    $status = $_POST['status'] ?? 'pending';
+    $booking_id = $_POST['booking_id'] ?? null;
+    $venueId = $_POST['venue_id'] ?? $_GET['venueId'];
     $user_id = $_POST['user_id'];
     $userName = $_POST['userName'];
     $date = $_POST['date'];
@@ -63,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
     if (!$venueId) {
         die("Venue ID is missing!");
     }
+
     $update_stmt = $conn->prepare("UPDATE venue_bookings SET status = ? WHERE id = ?");
     if (!$update_stmt) {
         die("Query preparation failed: " . $conn->error);
@@ -71,24 +86,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
     $update_stmt->execute();
     $update_stmt->close();
 
-    //notify the customer abuot the result of his/her booking
+    // Notify user
     if ($status === "confirmed" || $status === "cancelled") {
+        $message = ($status === "confirmed")
+            ? "Dear $userName,\nWe're excited to inform you that your booking for $venueName on $date has been confirmed! 🎊\nWe look forward to hosting your event. If you have any special requirements or need further assistance, feel free to reach out.\nThank you for choosing us!\nBest Regards,\n$venueName"
+            : "Dear $userName,\nWe regret to inform you that your booking for $venueName on $date has been cancelled.\nIf you need assistance with rescheduling or have any questions, please don't hesitate to contact us. We apologize for any inconvenience.\nBest Regards,\n$venueName";
 
-        if ($status === "confirmed") {
-            $message = "Dear $userName,\n"
-                . "We're excited to inform you that your booking for $venueName on $date has been confirmed! 🎊\n"
-                . "We look forward to hosting your event. If you have any special requirements or need further assistance, feel free to reach out.\n"
-                . "Thank you for choosing us!\n"
-                . "Best Regards,\n"
-                . "$venueName";
-        } else {
-            $message = "Dear $userName,\n"
-                . "We regret to inform you that your booking for $venueName on $date has been cancelled.\n"
-                . "If you need assistance with rescheduling or have any questions, please don't hesitate to contact us. We apologize for any inconvenience.\n"
-                . "Best Regards,\n"
-                . "$venueName";
-        }
-        $notify_stmt = $conn->prepare("INSERT INTO notifications (user_id,booking_id,booking_type,message)      VALUES(?,?,'venue',?)");
+        $notify_stmt = $conn->prepare("INSERT INTO notifications (user_id, booking_id, booking_type, message) VALUES (?, ?, 'venue', ?)");
         if (!$notify_stmt) {
             die("Query preparation failed: " . $conn->error);
         }
@@ -97,7 +101,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
         $notify_stmt->close();
 
         if ($status === "cancelled") {
-            // Delete the booking from the database
             $delete_stmt = $conn->prepare("DELETE FROM venue_bookings WHERE id = ?");
             if (!$delete_stmt) {
                 die("Query preparation failed: " . $conn->error);
@@ -111,7 +114,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
     header("Location: bookingRequest.php");
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -120,8 +122,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <title>Venue Bookings</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -132,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
         <a class="btn btn-secondary mb-3" href="./venues.php">← Back</a>
         <h2 class="mb-4">Bookings for: <span class="text-primary"><?= htmlspecialchars($venueName) ?></span></h2>
 
-        <!-- Venue Selection Dropdown -->
+        <!-- Venue Selection -->
         <form method="GET" class="mb-3">
             <label for="venueSelect" class="form-label">Select Venue:</label>
             <select name="venueId" id="venueSelect" class="form-select" onchange="this.form.submit()">
@@ -154,13 +156,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Status</th>
+                    <th>Payment</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($bookings)): ?>
                     <tr>
-                        <td colspan="7" class="text-center">No bookings found.</td>
+                        <td colspan="8" class="text-center">No bookings found.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($bookings as $booking): ?>
@@ -176,7 +179,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
                                 </span>
                             </td>
                             <td>
-                                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) ?>">
+                                <span class="badge bg-<?= $booking['payment_status'] === 'paid' ? 'success' : ($booking['payment_status'] === 'pending' ? 'danger' : 'secondary') ?>">
+                                    <?= $booking['payment_status'] ? ucfirst($booking['payment_status']) : 'N/A' ?>
+                                </span>
+                            </td>
+                            <td>
+                                <form method="POST" action="<?= htmlspecialchars($_SERVER["PHP_SELF"]) ?>">
                                     <input type="hidden" name="booking_id" value="<?= $booking['booking_id'] ?>">
                                     <input type="hidden" name="venue_id" value="<?= $venueId ?>">
                                     <input type="hidden" name="user_id" value="<?= $booking['user_id'] ?>">
@@ -187,7 +195,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["statusHandler"])) {
                                         <option value="confirmed" <?= $booking['status'] === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
                                         <option value="cancelled" <?= $booking['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
                                     </select>
-                                    <input type="submit" value="Update" name="statusHandler" class="btn btn-primary btn-sm">
+                                    <input type="submit" value="Update" name="statusHandler" class="btn btn-primary btn-sm mt-1">
                                 </form>
                             </td>
                         </tr>

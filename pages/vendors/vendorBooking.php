@@ -83,6 +83,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $insertQuery->bind_param("iisss", $userId, $vendorId, $bookingDate, $venueName, $venueLocation);
 
         if ($insertQuery->execute()) {
+
+            $bookingId = $conn->insert_id; // Get the inserted booking ID
+            $amount = $vendor['price_range']; // You can customize this if there's a different pricing model
+        
+            // Insert into payments table
+            $paymentInsert = $conn->prepare("INSERT INTO payments (user_id, booking_id, booking_type, amount, status) VALUES (?, ?, 'vendor', ?, 'pending')");
+            $paymentInsert->bind_param("iid", $userId, $bookingId, $amount);
+            $paymentInsert->execute();
+            $paymentInsert->close();
+
             echo "<script>alert('Booking request submitted successfully!'); window.location.href='vendors.php';</script>";
         } else {
             echo "<script>alert('Booking failed. Please try again.');</script>";

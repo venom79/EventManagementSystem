@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $userID = $_SESSION['user_id'];
 
 // Fetch vendor bookings
-$vendorBookingsQuery = "SELECT vb.id, v.id AS vendor_id, v.business_name, vb.booking_date, vb.venue_location, vb.venue_name, vb.status 
+$vendorBookingsQuery = "SELECT vb.id, v.id AS vendor_id, v.business_name, vb.booking_date, vb.venue_location, vb.venue_name, vb.status, vb.payment_status 
                         FROM vendor_bookings vb
                         JOIN vendors v ON vb.vendor_id = v.id
                         WHERE vb.user_id = ?";
@@ -21,7 +21,7 @@ $vendorBookings = $stmt1->get_result();
 $stmt1->close();
 
 // Fetch venue bookings
-$venueBookingsQuery = "SELECT vb.id, ven.id AS venue_id, ven.name, ven.location, vb.event_date, vb.event_purpose, vb.status 
+$venueBookingsQuery = "SELECT vb.id, ven.id AS venue_id, ven.name, ven.location, vb.event_date, vb.event_purpose, vb.status, vb.payment_status 
                         FROM venue_bookings vb
                         JOIN venues ven ON vb.venue_id = ven.id
                         WHERE vb.user_id = ?";
@@ -61,11 +61,18 @@ $stmt2->close();
                                     <p class="text-muted mb-2"><strong>Date:</strong> <?php echo htmlspecialchars($booking['booking_date']); ?></p>
                                     <p class="mb-2"><strong>Location:</strong> <?php echo htmlspecialchars($booking['venue_location']); ?></p>
                                     <p class="mb-2"><strong>Venue Name:</strong> <?php echo htmlspecialchars($booking['venue_name']); ?></p>
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
                                         <span class="badge bg-<?php echo ($booking['status'] == 'confirmed') ? 'success' : (($booking['status'] == 'cancelled') ? 'danger' : 'warning'); ?> px-3 py-2 rounded-pill">
                                             <?php echo ucfirst($booking['status']); ?>
                                         </span>
-                                        <a href="./vendors/vendorDetails.php?vendorId=<?php echo $booking['vendor_id']; ?>" class="btn btn-primary">View Vendor</a>
+                                        <a href="./vendors/vendorDetails.php?vendorId=<?php echo $booking['vendor_id']; ?>" class="btn btn-outline-secondary">View Vendor</a>
+                                        <?php if ($booking['status'] == 'confirmed'): ?>
+                                            <?php if ($booking['payment_status'] == 'pending'): ?>
+                                                <a href="./payment/payment.php?type=vendor&booking_id=<?= $booking['id'] ?>&vendor_id=<?= $booking['vendor_id'] ?>" class="btn btn-success">Pay Now</a>
+                                            <?php else: ?>
+                                                <a href="./payment/paymentDetails.php?type=vendor&booking_id=<?= $booking['id'] ?>" class="btn btn-outline-success">Payment Details</a>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -89,11 +96,18 @@ $stmt2->close();
                                     <p class="text-muted mb-2"><strong>Event Date:</strong> <?php echo htmlspecialchars($booking['event_date']); ?></p>
                                     <p class="mb-2"><strong>Location:</strong> <?php echo htmlspecialchars($booking['location']); ?></p>
                                     <p class="mb-2"><strong>Purpose:</strong> <?php echo htmlspecialchars($booking['event_purpose']); ?></p>
-                                    <div class="d-flex justify-content-between align-items-center" >
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
                                         <span class="badge bg-<?php echo ($booking['status'] == 'confirmed') ? 'success' : (($booking['status'] == 'cancelled') ? 'danger' : 'warning'); ?> px-3 py-2 rounded-pill">
                                             <?php echo ucfirst($booking['status']); ?>
                                         </span>
-                                        <a href="./venue/venueDetails.php?venueId=<?php echo $booking['venue_id']; ?>" class="btn btn-primary mt-3">View Venue</a>
+                                        <a href="./venue/venueDetails.php?venueId=<?php echo $booking['venue_id']; ?>" class="btn btn-outline-secondary">View Venue</a>
+                                        <?php if ($booking['status'] == 'confirmed'): ?>
+                                            <?php if ($booking['payment_status'] == 'pending'): ?>
+                                                <a href="./payment/payment.php?type=venue&booking_id=<?= $booking['id'] ?>&venue_id=<?= $booking['venue_id'] ?>" class="btn btn-success">Pay Now</a>
+                                            <?php else: ?>
+                                                <a href="./payment/paymentDetails.php?type=venue&booking_id=<?= $booking['id'] ?>" class="btn btn-outline-success">Payment Details</a>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

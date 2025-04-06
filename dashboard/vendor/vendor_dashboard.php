@@ -303,7 +303,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['viewBooking'])) {
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Price Range</label>
+                        <label class="form-label">Price</label>
                         <input type="text" name="price_range" class="form-control" value="<?php echo htmlspecialchars($vendor['price_range']); ?>">
                     </div>
                     <button type="submit" name="update_details" class="btn btn-primary">Save Changes</button>
